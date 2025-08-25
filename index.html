@@ -2,49 +2,48 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Bugcoin Store</title>
+<title>Bugcoin Checker</title>
 <style>
-    body { font-family: Arial, sans-serif; background: #f0f0f0; text-align: center; padding: 50px; }
+    body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f0f0f0; }
     h1 { color: #ff9900; }
-    #balance { font-size: 1.5em; margin: 20px; }
-    button { padding: 10px 20px; font-size: 1em; margin: 10px; cursor: pointer; }
-    #history { margin-top: 30px; text-align: left; display: inline-block; background: #fff; padding: 20px; border-radius: 10px; max-width: 400px; }
+    #result { margin-top: 30px; font-size: 1.5em; }
+    input[type="file"] { margin: 20px; }
 </style>
 </head>
 <body>
 
-<h1>Bugcoin Store</h1>
+<h1>Bugcoin Checker</h1>
 <p>1 Bugcoin = 10 USD</p>
 
-<div id="balance">Your balance: 0 Bugcoins</div>
-
-<button onclick="buyBugcoins(1)">Buy 1 Bugcoin (10 USD)</button>
-<button onclick="buyBugcoins(5)">Buy 5 Bugcoins (50 USD)</button>
-<button onclick="buyBugcoins(10)">Buy 10 Bugcoins (100 USD)</button>
-
-<div id="history">
-    <h3>Purchase History:</h3>
-    <ul id="historyList"></ul>
-</div>
+<input type="file" id="fileInput" accept=".bugcoin">
+<div id="result"></div>
 
 <script>
-let balance = 0;
+const BLOCK_REWARD = 10; // cada bloque vale 10 Bugcoins
+const BUGCOIN_VALUE = 10; // 1 Bugcoin = 10 USD
 
-function buyBugcoins(amount) {
-    // Aquí se simula un pago real
-    const cost = amount * 10; // USD
-    if (confirm(`Do you want to pay $${cost} to buy ${amount} Bugcoins?`)) {
-        balance += amount;
-        document.getElementById('balance').innerText = `Your balance: ${balance} Bugcoins`;
-        const li = document.createElement('li');
-        const time = new Date().toLocaleString();
-        li.innerText = `${time} - Bought ${amount} Bugcoins for $${cost}`;
-        document.getElementById('historyList').appendChild(li);
-        alert('Purchase successful!');
-    } else {
-        alert('Purchase canceled.');
-    }
-}
+document.getElementById('fileInput').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const content = e.target.result;
+        const lines = content.split(/\r?\n/);
+        let totalBugcoins = 0;
+        for (let line of lines) {
+            if (line.trim() !== "") {
+                totalBugcoins += BLOCK_REWARD;
+            }
+        }
+        const usdValue = totalBugcoins * BUGCOIN_VALUE;
+        document.getElementById('result').innerHTML = `
+            <p>Total Bugcoins: ${totalBugcoins}</p>
+            <p>Value in USD: $${usdValue}</p>
+        `;
+    };
+    reader.readAsText(file);
+});
 </script>
 
 </body>
